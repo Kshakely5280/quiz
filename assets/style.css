@@ -18,13 +18,14 @@ body{
     background-color: azure;
     border-radius: 10px;
     box-shadow: 0 0 10px 2px rgba(100, 100, 100, 0.1);
-    width: 50%;
+    width: 51%;
     overflow: hidden;
 
 }
 
 .quiz-header{
     padding: 4rem;
+    margin: 100px;
 }
 h2{
     padding: 1rem;
