@@ -89,6 +89,11 @@ submitBtn.addEventListener("click", () => {
   if (answer) {
     if (answer === quizData[currentQuiz].correct) {
       score++;
+    } else {
+      count -= 10; // Subtract 10 seconds for incorrect answer
+      if (count < 0) {
+        count = 0;
+      }
     }
 
     currentQuiz++;
@@ -110,7 +115,7 @@ submitBtn.addEventListener("click", () => {
 var timer;
 var timerCount = "";
 
-var count = 100;
+var count = 60;
 var countdown;
 
 function startTimer() {
