@@ -56,6 +56,9 @@ var timerElement = document.querySelector(".timer-count");
 var secondsLeft = document.querySelector(".large-font-timer-count");
 var currentQuiz = 0;
 var score = 0;
+var count = 60;
+var countdown;
+var isTimerStarted = false;
 
 loadQuiz();
 
@@ -84,6 +87,23 @@ function getSelected() {
   return answer;
 }
 
+function endQuiz() {
+  clearInterval(countdown);
+  alert("Time is up! Game over.");
+  location.reload();
+}
+
+function startTimer() {
+  isTimerStarted = true;
+  countdown = setInterval(() => {
+    count--;
+    secondsLeft.textContent = count;
+    if (count === 0) {
+      endQuiz();
+    }
+  }, 1000);
+}
+
 submitBtn.addEventListener("click", () => {
   var answer = getSelected();
   if (answer) {
@@ -91,8 +111,9 @@ submitBtn.addEventListener("click", () => {
       score++;
     } else {
       count -= 10; // Subtract 10 seconds for incorrect answer
-      if (count < 0) {
+      if (count <= 0) {
         count = 0;
+        endQuiz();
       }
     }
 
@@ -101,6 +122,7 @@ submitBtn.addEventListener("click", () => {
     if (currentQuiz < quizData.length) {
       loadQuiz();
     } else {
+      clearInterval(countdown); // Stop the timer
       quiz.innerHTML = `<h2>Your score is:  ${score}/${quizData.length}</h2>
             <button id="reload">Reload</button>
             `;
@@ -109,24 +131,9 @@ submitBtn.addEventListener("click", () => {
         location.reload();
       });
     }
+
+    if (!isTimerStarted) {
+      startTimer();
+    }
   }
 });
-
-var timer;
-var timerCount = "";
-
-var count = 60;
-var countdown;
-
-function startTimer() {
-  countdown = setInterval(() => {
-    count--;
-    secondsLeft.textContent = count;
-    if (count === 0) {
-      clearInterval(countdown);
-      console.log("Time's up!");
-    }
-  }, 1000);
-}
-
-submitBtn.addEventListener("click", startTimer);
