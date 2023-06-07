@@ -1,147 +1,141 @@
-var quizData = [
-  {
-    questions: "Commonly used data types DO NOT include:",
-    a: "Strings",
-    b: "Booleans",
-    c: "Alerts",
-    d: "Numbers",
-    correct: "c",
-  },
-  {
-    questions:
-      "the condition in an if / else statement is encclosed within ___.",
-    a: "Quotes",
-    b: "Curly Brackets",
-    c: "parenthesis",
-    d: "Square Brackets",
-    correct: "c",
-  },
-  {
-    questions: "Arrays in JavaScript can be used to store ____.",
-    a: "Numbers and Strings",
-    b: "Other arrays",
-    c: "Booleans",
-    d: "All of the above",
-    correct: "d",
-  },
-  {
-    questions:
-      "String values must be enclosed within ___ when being assigned to variables",
-    a: "Commas",
-    b: "Curly Brackets",
-    c: "Quotes",
-    d: "Parenthesis",
-    correct: "c",
-  },
-  {
-    questions:
-      "A very useful tool used during development and debugging for printing content to the debugger is",
-    a: "Javascript",
-    b: "Terminal",
-    c: "For loops",
-    d: "console log",
-    correct: "d",
-  },
-];
+// variables to keep track of quiz state
+var currentQuestionIndex = 0;
+var time = questions.length * 15;
+var timerId;
 
-var quiz = document.getElementById("quiz");
-var quizContainer = document.getElementById("quiz-container");
-var answerEl = document.querySelectorAll(".answer");
-var questionsEl = document.getElementById("question");
-var a_text = document.getElementById("a_text");
-var b_text = document.getElementById("b_text");
-var c_text = document.getElementById("c_text");
-var d_text = document.getElementById("d_text");
-var startQuizBtn = document.getElementById("startQuizBtn");
-var timerElement = document.querySelector(".timer-count");
-var secondsLeft = document.querySelector(".large-font-timer-count");
-var currentQuiz = 0;
-var score = 0;
-var count = 60;
-var countdown;
-var isTimerStarted = false;
-
-loadQuiz();
+var questionsEl = document.getElementById("questions");
+var timerEl = document.getElementById("time");
+var choicesEl = document.getElementById("choices");
+var submitBtn = document.getElementById("submit");
+var startBtn = document.getElementById("start");
+var initialsEl = document.getElementById("initials");
+var feedbackEl = document.getElementById("feedback");
 
 function loadQuiz() {
-  deselectAnswers();
-
-  var currentQuizData = quizData[currentQuiz];
-  questionsEl.innerText = currentQuizData.questions;
-  a_text.innerText = currentQuizData.a;
-  b_text.innerText = currentQuizData.b;
-  c_text.innerText = currentQuizData.c;
-  d_text.innerText = currentQuizData.d;
-
- 
+  //using css to hide start screen
+  var startScreenEl = document.getElementById("start-screen");
+  startScreenEl.setAttribute("class", "hide");
+  questionsEl.removeAttribute("class");
+  timerId = setInterval(clockTick, 1000);
+  timerEl.textContent = time;
+  questions();
 }
 
-function deselectAnswers() {
-  answerEl.forEach((answerEl) => (answerEl.checked = false));
-}
+function questions() {
+  var currentQuestion = questions[currentQuestionIndex];
+  // update title with cureent question
+  var titleEl = document.getElementById("question-title");
+  titleEl.textContent = currentQuestion.title;
+  choicesEl.innerHTML = "";
 
-function getSelected() {
-  var answer;
-  answerEl.forEach((answerEl) => {
-    if (answerEl.checked) {
-      answer = answerEl.id;
-    }
-  });
-  return answer;
-}
+  //loop the choices
+  for (var i = 0; i < currentQuestion.choices.length; i++) {
+    var choice = currentQuestion.choices[i];
+    var choiceNode = document.createElement("button");
+    choiceNode.setAttribute("class", "choice");
+    choiceNode.setAttribute("value", choice);
 
-function endQuiz() {
-  clearInterval(countdown);
-  alert("Time is up! Game over.");
-  location.reload();
-}
+    choiceNode.textContent = i + 1 + ". " + choice;
 
-function startTimer() {
-  isTimerStarted = true;
-  countdown = setInterval(() => {
-    count--;
-    secondsLeft.textContent = count;
-    if (count === 0) {
-      endQuiz();
-    }
-  }, 1000);
-}
-
-function startQuiz() {
-  startQuizBtn.style.display = "none"; // Hide the start quiz button
-  loadQuiz();
-  startTimer();
-}
-
-startQuizBtn.addEventListener("click", startQuiz);
-
-quiz.addEventListener("submit", (event) => {
-  event.preventDefault();
-  var answer = getSelected();
-  if (answer) {
-    if (answer === quizData[currentQuiz].correct) {
-      score++;
-    } else {
-      count -= 10; // Subtract 10 seconds for incorrect answer
-      if (count <= 0) {
-        count = 0;
-        endQuiz();
-      }
-    }
-
-    currentQuiz++;
-
-    if (currentQuiz < quizData.length) {
-      loadQuiz();
-    } else {
-      clearInterval(countdown); // Stop the timer
-      quiz.innerHTML = `<h2>Your score is:  ${score}/${quizData.length}</h2>
-            <button id="reload">Reload</button>
-            `;
-      // Add event listener to the reload button
-      document.getElementById("reload").addEventListener("click", () => {
-        location.reload();
-      });
-    }
+    // display on the page
+    choicesEl.appendChild(choiceNode);
   }
-});
+}
+
+function questionClick(event) {
+  var buttonEl = event.target;
+
+  // if the clicked element is not a choice button, do nothing.
+  if (!buttonEl.matches(".choice")) {
+    return;
+  }
+
+  // check if user guessed wrong
+  if (buttonEl.value !== questions[currentQuestionIndex].answer) {
+    // penalize time
+    time -= 15;
+
+    if (time < 0) {
+      time = 0;
+    }
+
+    // display new time on page
+    timerEl.textContent = time;
+
+    feedbackEl.textContent = "Wrong!";
+  } else {
+    feedbackEl.textContent = "Correct!";
+  }
+
+  // flash right/wrong feedback on page
+  feedbackEl.setAttribute("class", "feedback");
+  setTimeout(function () {
+    feedbackEl.setAttribute("class", "feedback hide");
+  }, 1000);
+
+  // move to next question
+  currentQuestionIndex++;
+
+  // check if we've run out of questions
+  if (time <= 0 || currentQuestionIndex === questions.length) {
+    quizEnd();
+  } else {
+    questions();
+  }
+}
+
+function quizEnd() {
+  // stop timer
+  clearInterval(timerId);
+
+  var endScreenEl = document.getElementById("end-screen");
+  endScreenEl.removeAttribute("class");
+
+  var finalScoreEl = document.getElementById("final-score");
+  finalScoreEl.textContent = time;
+
+  questionsEl.setAttribute("class", "hide");
+}
+
+function clockTick() {
+  time--;
+  timerEl.textContent = time;
+
+  if (time <= 0) {
+    quizEnd();
+  }
+}
+
+function saveHighscore() {
+  var initials = initialsEl.value.trim();
+
+  // make sure value wasn't empty
+  if (initials !== "") {
+    // get saved scores from localstorage, or if not any, set to empty array
+    var highscores =
+      JSON.parse(window.localStorage.getItem("highscores")) || [];
+
+    // format new score object for current user
+    var newScore = {
+      score: time,
+      initials: initials,
+    };
+
+    // save to localstorage
+    highscores.push(newScore);
+    window.localStorage.setItem("highscores", JSON.stringify(highscores));
+
+    window.location.href = "highscores.html";
+  }
+}
+
+function checkForEnter(event) {
+  if (event.key === "Enter") {
+    saveHighscore();
+  }
+}
+
+submitBtn.onclick = saveHighscore;
+startBtn.onclick = loadQuiz;
+choicesEl.onclick = questionClick;
+initialsEl.onkeyup = checkForEnter;
