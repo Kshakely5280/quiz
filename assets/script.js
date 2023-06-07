@@ -45,13 +45,14 @@ var quizData = [
 ];
 
 var quiz = document.getElementById("quiz");
+var quizContainer = document.getElementById("quiz-container");
 var answerEl = document.querySelectorAll(".answer");
 var questionsEl = document.getElementById("question");
 var a_text = document.getElementById("a_text");
 var b_text = document.getElementById("b_text");
 var c_text = document.getElementById("c_text");
 var d_text = document.getElementById("d_text");
-var submitBtn = document.getElementById("submit");
+var startQuizBtn = document.getElementById("startQuizBtn");
 var timerElement = document.querySelector(".timer-count");
 var secondsLeft = document.querySelector(".large-font-timer-count");
 var currentQuiz = 0;
@@ -71,6 +72,8 @@ function loadQuiz() {
   b_text.innerText = currentQuizData.b;
   c_text.innerText = currentQuizData.c;
   d_text.innerText = currentQuizData.d;
+
+ 
 }
 
 function deselectAnswers() {
@@ -104,7 +107,16 @@ function startTimer() {
   }, 1000);
 }
 
-submitBtn.addEventListener("click", () => {
+function startQuiz() {
+  startQuizBtn.style.display = "none"; // Hide the start quiz button
+  loadQuiz();
+  startTimer();
+}
+
+startQuizBtn.addEventListener("click", startQuiz);
+
+quiz.addEventListener("submit", (event) => {
+  event.preventDefault();
   var answer = getSelected();
   if (answer) {
     if (answer === quizData[currentQuiz].correct) {
@@ -130,10 +142,6 @@ submitBtn.addEventListener("click", () => {
       document.getElementById("reload").addEventListener("click", () => {
         location.reload();
       });
-    }
-
-    if (!isTimerStarted) {
-      startTimer();
     }
   }
 });
