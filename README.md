@@ -1,4 +1,4 @@
-# Text Editor
+# Module 4 Quiz Challenge
 ![Github license](https://img.shields.io/badge/license-Other-blue.svg)
 #### Description
 This week our challenge was to complete an online quiz that utilizes local storage and hiding/ displaying content. This was without question my least favorite challenge in this course and one I'm struggling with. I plan to revisit this test of my patience and sanity oncce bootcamp ends. 
